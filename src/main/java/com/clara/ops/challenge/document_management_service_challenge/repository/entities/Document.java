@@ -2,7 +2,7 @@ package com.clara.ops.challenge.document_management_service_challenge.repository
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
