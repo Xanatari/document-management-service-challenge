@@ -8,7 +8,7 @@ services:
       - batch_network
     volumes:
       - challenge_postgresql_data:/bitnami/postgresql
-      - ./init-scripts:/docker-entrypoint-initdb.d
+      - ./init-scripts:/schema-init.sql
     environment:
       - POSTGRESQL_USERNAME=myuser
       - POSTGRESQL_PASSWORD=mypassword
