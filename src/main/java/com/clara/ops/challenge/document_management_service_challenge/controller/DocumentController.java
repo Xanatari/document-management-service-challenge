@@ -1,8 +1,8 @@
 package com.clara.ops.challenge.document_management_service_challenge.controller;
 
 
-
-import lombok.RequiredArgsConstructor;
+import com.clara.ops.challenge.document_management_service_challenge.dtos.response.DocumentResponse;
+import com.clara.ops.challenge.document_management_service_challenge.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,4 +32,3 @@ public class DocumentController {
         return ResponseEntity.ok(response);
     }
 }
-
