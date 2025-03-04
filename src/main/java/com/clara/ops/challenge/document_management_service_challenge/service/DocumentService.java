@@ -4,10 +4,9 @@ package com.clara.ops.challenge.document_management_service_challenge.service;
 
 import com.clara.ops.challenge.document_management_service_challenge.dtos.response.DocumentResponse;
 import com.clara.ops.challenge.document_management_service_challenge.exceptions.InvalidFileTypeException;
-import com.clara.ops.challenge.document_management_service_challenge.integrations.MinioService;
+import com.clara.ops.challenge.document_management_service_challenge.integrations.minio.MinioService;
 import com.clara.ops.challenge.document_management_service_challenge.repository.contract.DocumentRepository;
 import com.clara.ops.challenge.document_management_service_challenge.repository.entities.Document;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
