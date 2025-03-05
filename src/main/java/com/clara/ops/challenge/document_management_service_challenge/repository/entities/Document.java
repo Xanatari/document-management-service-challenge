@@ -24,10 +24,8 @@ public class Document {
     @Column(name = "document_name")
     private String documentName;
 
-    @ElementCollection
-    @CollectionTable(name = "document_tags", joinColumns = @JoinColumn(name = "document_id"))
-    @Column(name = "tag")
-    private List<String> tags;
+    @Column(name = "tags", columnDefinition = "text[]")
+    private String[] tags;
 
     @Column(name = "minio_path")
     private String minioPath;
