@@ -46,7 +46,7 @@ public class DocumentController {
     @PostMapping("/upload")
     public ResponseEntity<List<String>> uploadDocuments(@RequestParam("files") List<MultipartFile> files) {
         List<CompletableFuture<String>> uploadFutures = files.stream()
-                .map(documentService::uploadDocument)
+                .map(documentService::uploadDocumentPharaller)
                 .collect(Collectors.toList());
 
         // Esperar a que todas las subidas finalicen

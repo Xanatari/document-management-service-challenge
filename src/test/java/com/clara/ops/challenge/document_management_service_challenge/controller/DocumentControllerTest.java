@@ -15,10 +15,12 @@ import org.springframework.context.annotation.Import;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -109,5 +111,24 @@ public class DocumentControllerTest {
                 .andExpect(status().isNotFound());
 
         verify(documentService, times(1)).downloadDocument(99L);
+    }
+
+    @Test
+    public void testUploadMultipleFiles() throws Exception {
+        MockMultipartFile file1 = new MockMultipartFile("files", "doc1.txt", "text/plain", "Contenido 1".getBytes());
+        MockMultipartFile file2 = new MockMultipartFile("files", "doc2.txt", "text/plain", "Contenido 2".getBytes());
+
+        when(documentService.uploadDocumentPharaller(any()))
+                .thenReturn(CompletableFuture.completedFuture("Archivo guardado: doc1.txt"))
+                .thenReturn(CompletableFuture.completedFuture("Archivo guardado: doc2.txt"));
+
+        mockMvc.perform(multipart("/documents/upload")
+                        .file(file1)
+                        .file(file2)
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isOk())
+                .andExpect(content().string("[\"Archivo guardado: doc1.txt\",\"Archivo guardado: doc2.txt\"]"));
+
+        verify(documentService, times(2)).uploadDocumentPharaller(any());
     }
 }
