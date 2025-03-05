@@ -17,12 +17,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 @Service
 public class DocumentService {
+
+
+    private final ExecutorService executorService = Executors.newFixedThreadPool(10); // 10 uploads concurrentes
 
     private final DocumentRepository documentRepository;
     private final MinioService minioService;
@@ -62,6 +73,7 @@ public class DocumentService {
         return new DocumentResponse(document.getId(), "Upload successful");
     }
 
+
     public Page<Document> searchDocuments(
             String user,
             String documentName,
@@ -83,5 +95,25 @@ public class DocumentService {
     public Document downloadDocument(Long documentId) {
         return documentRepository.findById(documentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Documento no encontrado"));
+    }
+
+    public CompletableFuture<String> uploadDocumentPharaller(MultipartFile file) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return saveFile(file);
+            } catch (IOException e) {
+                throw new RuntimeException("Error al guardar el archivo: " + file.getOriginalFilename(), e);
+            }
+        }, executorService);
+    }
+
+    private String saveFile(MultipartFile file) throws IOException {
+        String uploadDir = "uploads/";
+        File directory = new File(uploadDir);
+        if (!directory.exists()) directory.mkdirs();
+
+        Path filePath = Path.of(uploadDir, file.getOriginalFilename());
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        return "Archivo guardado: " + file.getOriginalFilename();
     }
 }

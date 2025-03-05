@@ -18,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/documents")
@@ -39,6 +41,20 @@ public class DocumentController {
     ) throws Exception {
         DocumentResponse response = documentService.uploadDocument(file, user, documentName, tags);
         return ResponseEntity.ok(response);
+    }
+    @Operation(summary = "Subir múltiples documentos en paralelo", description = "Permite subir hasta 10 documentos simultáneamente (máx. 500MB cada uno).")
+    @PostMapping("/upload")
+    public ResponseEntity<List<String>> uploadDocuments(@RequestParam("files") List<MultipartFile> files) {
+        List<CompletableFuture<String>> uploadFutures = files.stream()
+                .map(documentService::uploadDocument)
+                .collect(Collectors.toList());
+
+        // Esperar a que todas las subidas finalicen
+        List<String> results = uploadFutures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(results);
     }
 
 
