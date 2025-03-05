@@ -8,6 +8,10 @@ import com.clara.ops.challenge.document_management_service_challenge.integration
 import com.clara.ops.challenge.document_management_service_challenge.repository.contract.DocumentRepository;
 import com.clara.ops.challenge.document_management_service_challenge.repository.entities.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,5 +58,23 @@ public class DocumentService {
         document = documentRepository.save(document);
 
         return new DocumentResponse(document.getId(), "Upload successful");
+    }
+
+    public Page<Document> searchDocuments(
+            String user,
+            String documentName,
+            List<String> tags,
+            int page,
+            int size
+    ) {
+        // Creamos un Pageable con orden DESC por createdAt
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        // Si tags es null o está vacío, usamos un array vacío
+        String[] tagsArray = (tags == null || tags.isEmpty())
+                ? new String[] {}
+                : tags.toArray(new String[0]);
+
+        return documentRepository.searchDocuments(user, documentName, tagsArray, pageable);
     }
 }
