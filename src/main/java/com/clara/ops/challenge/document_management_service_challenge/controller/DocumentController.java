@@ -7,10 +7,13 @@ import com.clara.ops.challenge.document_management_service_challenge.repository.
 import com.clara.ops.challenge.document_management_service_challenge.service.DocumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @RestController
@@ -50,5 +53,24 @@ public class DocumentController {
         Page<DocumentDTO> dtoPage = documentsPage.map(DocumentDTO::fromEntity);
 
         return ResponseEntity.ok(dtoPage);
+    }
+
+    @Operation(summary = "Descargar un documento por ID", description = "Retorna el documento en formato texto.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Documento encontrado"),
+            @ApiResponse(responseCode = "404", description = "Documento no encontrado")
+    })
+    @GetMapping("/{id}/download")
+    public ResponseEntity<byte[]> downloadDocument(@PathVariable Long id) {
+        Document document = documentService.downloadDocument(id);
+
+        String content = "Documento: " + document.getDocumentName() + "\nTags: " + String.join(", ", document.getTags());
+        byte[] contentBytes = content.getBytes(StandardCharsets.UTF_8);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + document.getDocumentName() + ".txt");
+        headers.add(HttpHeaders.CONTENT_TYPE, "text/plain; charset=UTF-8");
+
+        return new ResponseEntity<>(contentBytes, headers, HttpStatus.OK);
     }
 }

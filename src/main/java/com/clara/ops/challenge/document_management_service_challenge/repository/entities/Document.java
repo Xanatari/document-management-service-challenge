@@ -25,7 +25,7 @@ public class Document {
     private String documentName;
 
     @Column(name = "tags", columnDefinition = "text[]")
-    private String[] tags;
+    private List<String> tags;
 
     @Column(name = "minio_path")
     private String minioPath;
